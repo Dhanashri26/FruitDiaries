@@ -1,0 +1,12 @@
+@for(blog of blogs$ | async; track blog.id){
+
+<a [routerLink]="['/blog', blog.id]">
+    <div class="blog-post">
+        <h2>{{ blog.title }}</h2>
+        <img [src]="blog.img" [alt]="blog.title">
+        <p>{{ blog.description }}</p>
+    </div>
+</a>
+}@empty{
+<div class="loading">loading...</div>
+}

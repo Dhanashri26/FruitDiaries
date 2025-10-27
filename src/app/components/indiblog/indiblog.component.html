@@ -1,0 +1,17 @@
+<div class="back-link">
+    <a routerLink="/">Go Back</a>
+</div>
+@if (blog$ | async; as blog) {
+<div class="blog-container">
+    <div class="header">
+        <h1>{{ blog.title }}</h1>
+        <button (click)="handleCopy()">{{copyText}}</button>
+    </div>
+    <img [src]="blog.img" [alt]="blog.title" class="blog-image">
+    <p>{{ blog.description }}</p>
+</div>
+}@else{
+<div class="loading">
+    <p>Loading...</p>
+</div>
+}

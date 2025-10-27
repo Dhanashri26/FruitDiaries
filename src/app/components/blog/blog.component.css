@@ -1,0 +1,48 @@
+
+/* Blog Post Styles */
+
+a {
+    text-decoration: none;
+}
+.blog-post {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 600px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.blog-post:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.blog-post h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.blog-post img {
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto 10px;
+    max-width: 100%;
+}
+
+.blog-post p {
+    color: #666;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Loading Styles */
+.loading {
+    color: #666;
+    font-size: 18px;
+    text-align: center;
+    padding: 20px;
+}

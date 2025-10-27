@@ -1,0 +1,40 @@
+{
+    "blogs": [
+        {
+            "id": "1",
+            "title": "The Health Benefits of Fresh Apples test",
+            "img": "https://images.unsplash.com/photo-1471500466955-85aecf33f71f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "description": "Apples are not only delicious but also packed with vitamins, antioxidants, and fiber. Discover how eating apples can improve your overall health."
+        },
+        {
+            "id": "2",
+            "title": "A Guide to Exotic Tropical Fruits",
+            "img": "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "description": "Tropical fruits like mangoes, pineapples, and papayas are not only tasty but also offer numerous health benefits. Learn more about these exotic fruits and how to incorporate them into your diet."
+        },
+        {
+            "id": "3",
+            "title": "The Nutritional Power of Blueberries",
+            "img": "https://images.unsplash.com/photo-1558364015-0d5ba7a4ba86?q=80&w=1925&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "description": "Blueberries are small but mighty when it comes to nutrition. They are rich in antioxidants, vitamins, and minerals. Learn about the health benefits of incorporating blueberries into your diet."
+        },
+        {
+            "id": "4",
+            "title": "The Wonders of Citrus Fruits",
+            "img": "https://images.unsplash.com/photo-1547514701-418e31cbb328?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "description": "Citrus fruits such as oranges, lemons, and grapefruits are known for their high vitamin C content. Explore the various health benefits and uses of these tangy fruits."
+        },
+        {
+            "id": "5",
+            "title": "Berries: Small Fruits with Big Benefits",
+            "img": "https://images.unsplash.com/photo-1514756062153-4d9b55947090?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "description": "From strawberries to raspberries, berries are packed with nutrients and antioxidants. Discover the diverse health benefits of these small but powerful fruits."
+        },
+        {
+            "id": "6",
+            "title": "The Versatility of Bananas",
+            "img": "https://images.unsplash.com/photo-1488442942852-33c2dd3b7528?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "description": "Bananas are not only a convenient snack but also a versatile ingredient in many dishes. Learn about the nutritional benefits of bananas and how to use them in your cooking."
+        }
+    ]
+}
