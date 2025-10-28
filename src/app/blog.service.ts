@@ -15,9 +15,11 @@ export class BlogService {
   constructor(private http:HttpClient) { }
 
   getAllBlogs() {
-     return this.http.get<Blog[]>("http://localhost:5000/api/blogs")
+    return this.http.get<Blog[]>("https://my-json-server.typicode.com/Dhanashri26/fake-APIs/blogs")
+    //  return this.http.get<Blog[]>("http://localhost:5000/api/blogs")
   }
   getBlogById(id:string) {
-     return this.http.get<Blog>(`http://localhost:5000/api/blogs/${id}`)
+    return this.http.get<Blog[]>(`https://my-json-server.typicode.com/Dhanashri26/fake-APIs/blogs/${id}`)
+    //  return this.http.get<Blog>(`http://localhost:5000/api/blogs/${id}`)
   }
 }
