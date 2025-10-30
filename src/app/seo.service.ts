@@ -21,10 +21,10 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:image', content: image });
     this.meta.updateTag({ property: 'og:url', content: url });
 
-    // Twitter Cards (optional)
-    this.meta.updateTag({ name: 'twitter:title', content: title });
-    this.meta.updateTag({ name: 'twitter:description', content: description });
-    this.meta.updateTag({ name: 'twitter:image', content: image });
-    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    // // Twitter Cards (optional)
+    // this.meta.updateTag({ name: 'twitter:title', content: title });
+    // this.meta.updateTag({ name: 'twitter:description', content: description });
+    // this.meta.updateTag({ name: 'twitter:image', content: image });
+    // this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
   }
 }

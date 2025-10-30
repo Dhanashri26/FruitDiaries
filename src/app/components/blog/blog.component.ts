@@ -26,9 +26,10 @@ export class BlogComponent {
     this.seoService.updateMetaTags({
       title: 'Buy fresh fruits online at Fruit Diaries.',
       description: 'Buy fresh fruits online at affordable prices. Healthy eating starts here with amazing blog stories!',
-      image: 'https://yourdomain.com/path/to/default-image.jpg', // replace with your homepage/blog default image
-      url: 'https://yourdomain.com/'
+      image: 'https://yourdomain.com/path/to/default-image.jpg',
+      url: 'https://natures-basket-mocha.vercel.app/'
     });
+    //  image: 'https://yourdomain.com/path/to/default-image.jpg', // replace with your homepage/blog default image
     this.blogs$ = this.blogService.getAllBlogs();
   }
 

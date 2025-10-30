@@ -32,7 +32,7 @@ export class IndiblogComponent {
           title: blog.title,
           description: blog.description,
           image: blog.img,
-          url: `https://yourdomain.com/blog/${blog.id}`
+          url: `/natures-basket-mocha.vercel.app/blog/${blog.id}`
         });
       }
     });
