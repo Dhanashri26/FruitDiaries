@@ -24,25 +24,25 @@ export class BlogService {
     //  return this.http.get<Blog>(`http://localhost:5000/api/blogs/${id}`)
   }
 
-  getCard1Detail(){
-    this.meta.addTags ([
-      { name: 'description', content:'Apples are not only delicious but also packed with vitamins, antioxidants, and fiber. Discover how eating apples can improve your overall health.' },
-      { property: 'og:title', content: 'The Health Benefits of Fresh Apples test'},
-      { property: 'og:description', content: 'Buy fresh fruits online at affordable prices.' },
-      { property: 'og:image', content: 'https://images.unsplash.com/photo-1471500466955-85aecf33f71f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
-      { property: 'og:url', content: 'http://localhost:4200/blog/1' },
-    ]);
-  }
+  // getCard1Detail(){
+  //   this.meta.addTags ([
+  //     { name: 'description', content:'Apples are not only delicious but also packed with vitamins, antioxidants, and fiber. Discover how eating apples can improve your overall health.' },
+  //     { property: 'og:title', content: 'The Health Benefits of Fresh Apples test'},
+  //     { property: 'og:description', content: 'Buy fresh fruits online at affordable prices.' },
+  //     { property: 'og:image', content: 'https://images.unsplash.com/photo-1471500466955-85aecf33f71f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+  //     { property: 'og:url', content: 'http://localhost:4200/blog/1' },
+  //   ]);
+  // }
 
-  getCard2Detail() {
-    this.meta.addTags ([
-      { name: 'description', content:'Apples are not only delicious but also packed with vitamins, antioxidants, and fiber. Discover how eating apples can improve your overall health.' },
-      { property: 'og:title', content: 'The Health Benefits of Fresh Apples test'},
-      { property: 'og:description', content: 'Buy fresh fruits online at affordable prices.' },
-      { property: 'og:image', content: 'https://images.unsplash.com/photo-1471500466955-85aecf33f71f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
-      { property: 'og:url', content: 'http://localhost:4200/blog/1' },
+  // getCard2Detail() {
+  //   this.meta.addTags ([
+  //     { name: 'description', content:'Apples are not only delicious but also packed with vitamins, antioxidants, and fiber. Discover how eating apples can improve your overall health.' },
+  //     { property: 'og:title', content: 'The Health Benefits of Fresh Apples test'},
+  //     { property: 'og:description', content: 'Buy fresh fruits online at affordable prices.' },
+  //     { property: 'og:image', content: 'https://images.unsplash.com/photo-1471500466955-85aecf33f71f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+  //     { property: 'og:url', content: 'http://localhost:4200/blog/1' },
 
-    ]);
-  };
+  //   ]);
+  // };
 }
 
