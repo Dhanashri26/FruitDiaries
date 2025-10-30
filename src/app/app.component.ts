@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { BlogService } from './blog.service';
 import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
@@ -16,8 +15,9 @@ export class AppComponent implements OnInit{
   
   ngOnInit(): void {
     this.titleService.setTitle('Fruit Diaries - Buy Fresh Fruits Online');
+    console.log("app initialized");
 
-     this.meta.addTags([
+    this.meta.addTags([
       { name: 'description', content: 'Buy fresh fruits online at Fruit Diaries.' },
       { property: 'og:title', content: 'Fruit Diaries - Fresh Fruits Delivered' },
       { property: 'og:description', content: 'Buy fresh fruits online at affordable prices.' },
@@ -27,8 +27,6 @@ export class AppComponent implements OnInit{
     ]);
   }
   // title = 'fruitdiaries';
-
- 
 }
 
    

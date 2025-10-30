@@ -4,5 +4,6 @@ import { IndiblogComponent } from './components/indiblog/indiblog.component';
 
 export const routes: Routes = [
     { path: '', component: BlogComponent },
+    { path: 'blog', component: BlogComponent },
     { path: 'blog/:id', component: IndiblogComponent },
 ];
