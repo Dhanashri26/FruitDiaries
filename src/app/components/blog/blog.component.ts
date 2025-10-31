@@ -36,15 +36,15 @@ export class BlogComponent {
       };
       this.seoService.insertJSsonLd(jsonLdData);
 
-
     // Generic SEO for the homepage or blog list
-    // this.seoService.updateMetaTags({
-    //   title: 'Buy fresh fruits online at Fruit Diaries.',
-    //   description: 'Buy fresh fruits online at affordable prices. Healthy eating starts here with amazing blog stories!',
-    //   image: 'https://yourdomain.com/path/to/default-image.jpg',
-    //   url: 'https://natures-basket-mocha.vercel.app/'
-    // });
-    //  image: 'https://yourdomain.com/path/to/default-image.jpg', // replace with your homepage/blog default image
+    this.seoService.updateMetaTags({
+      title: 'Buy fresh fruits online at Fruit Diaries.',
+      description: 'Buy fresh fruits online at affordable prices. Healthy eating starts here with amazing blog stories!',
+      image: 'https://images.unsplash.com/photo-1471500466955-85aecf33f71f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      url: 'https://natures-basket-mocha.vercel.app/blog',
+      type: 'website',
+      canonical: 'https://natures-basket-mocha.vercel.app/blog'
+    });
     this.blogs$ = this.blogService.getAllBlogs();
   }
 

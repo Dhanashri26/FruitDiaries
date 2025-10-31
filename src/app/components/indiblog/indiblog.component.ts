@@ -26,16 +26,18 @@ export class IndiblogComponent {
   ngOnInit() {
     const blogId = this.route.snapshot.paramMap.get('id')!;
     this.blog$ = this.blogService.getBlogById(blogId);
-    // this.blog$.subscribe(blog => {
-    //   if (blog) {
-    //     this.seoService.updateMetaTags({
-    //       title: blog.title,
-    //       description: blog.description,
-    //       image: blog.img,
-    //       url: `/natures-basket-mocha.vercel.app/blog/${blog.id}`
-    //     });
-    //   }
-    // });
+    this.blog$.subscribe(blog => {
+      if (blog) {
+        this.seoService.updateMetaTags({
+          title: blog.title,
+          description: blog.description,
+          image: blog.img,
+          url: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`,
+          type: 'article',
+          canonical: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`
+        });
+      }
+    });
   }
 
   handleCopy() {
