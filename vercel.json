@@ -1,6 +1,17 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/fruitdiaries/browser",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/ssr"
+    }
+  ],
+  "functions": {
+    "api/ssr.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
 
