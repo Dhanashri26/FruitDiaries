@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BlogService } from '../../blog.service';
-import { Observable, firstValueFrom, tap, shareReplay } from 'rxjs';
 import { Blog } from '../../models/Blog.model';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SeoService } from '../../seo.service';
 import { PLATFORM_ID, Inject } from '@angular/core';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-indiblog',
@@ -20,42 +19,44 @@ export class IndiblogComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private blogService: BlogService,
     private seoService: SeoService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  async ngOnInit() {
-    const blogId = this.route.snapshot.paramMap.get('id')!;
+  ngOnInit() {
+    // Get blog data from resolver (ensures SSR waits for data)
+    const blog = this.route.snapshot.data['blog'] as Blog;
     
-    // Fetch blog and set meta tags - this ensures meta tags are set during SSR
-    // Use shareReplay to share the observable between the await and template subscription
-    this.blog$ = this.blogService.getBlogById(blogId).pipe(
-      tap(blog => {
-        if (blog) {
-          // Ensure image URL is absolute
-          const imageUrl = blog.img.startsWith('http') 
-            ? blog.img 
-            : `https://natures-basket-mocha.vercel.app${blog.img.startsWith('/') ? '' : '/'}${blog.img}`;
-          
-          this.seoService.updateMetaTags({
-            title: blog.title,
-            description: blog.description,
-            image: imageUrl,
-            url: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`,
-            type: 'article',
-            canonical: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`
-          });
-        }
-      }),
-      shareReplay(1) // Share the result so both await and template subscription get the same value
-    );
-    
-    // Wait for the first value during SSR to ensure meta tags are set before rendering
-    try {
-      await firstValueFrom(this.blog$);
-    } catch (error) {
-      console.error('Error loading blog:', error);
+    if (blog) {
+      // Fix image URL: remove /public prefix if present, ensure it's absolute
+      let imagePath = blog.img;
+      // Remove /public prefix if present (assets are served from root in production)
+      if (imagePath.startsWith('/public/')) {
+        imagePath = imagePath.replace('/public', '');
+      }
+      // Ensure it starts with /
+      if (!imagePath.startsWith('/')) {
+        imagePath = '/' + imagePath;
+      }
+      // Convert to absolute URL
+      const imageUrl = imagePath.startsWith('http') 
+        ? imagePath 
+        : `https://natures-basket-mocha.vercel.app${imagePath}`;
+      
+      console.log('Setting meta tags for blog:', blog.title, 'Image:', imageUrl);
+      
+      // Set meta tags immediately with resolved data (works during SSR)
+      this.seoService.updateMetaTags({
+        title: blog.title,
+        description: blog.description,
+        image: imageUrl,
+        url: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`,
+        type: 'article',
+        canonical: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`
+      });
+      
+      // Set blog$ observable for template
+      this.blog$ = of(blog);
     }
   }
 

@@ -51,11 +51,12 @@ export class SeoService {
     // Set page title
     this.titleService.setTitle(title);
 
-    // Basic meta tags
+    // Basic meta tags - use updateTag which will add if not exists or update if exists
     this.meta.updateTag({ name: 'title', content: title });
     this.meta.updateTag({ name: 'description', content: description });
 
     // Open Graph meta tags (Facebook, LinkedIn, etc.)
+    // Use updateTag which works on both server and browser
     this.meta.updateTag({ property: 'og:title', content: title });
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:image', content: image });
