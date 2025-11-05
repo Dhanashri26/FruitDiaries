@@ -38,7 +38,13 @@ export const APP_CONFIG = {
  * Removes /public prefix and converts to absolute URL
  */
 export function getAbsoluteImageUrl(imagePath: string): string {
-  let path = imagePath;
+  let path = imagePath.trim();
+  
+  // IMPORTANT: Check if already absolute URL FIRST, before any manipulation
+  // If already absolute (starts with http:// or https://), return as is
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
   
   // Remove /public prefix if present (assets are served from root in production)
   if (path.startsWith('/public/')) {
@@ -48,11 +54,6 @@ export function getAbsoluteImageUrl(imagePath: string): string {
   // Ensure it starts with /
   if (!path.startsWith('/')) {
     path = '/' + path;
-  }
-  
-  // If already absolute, return as is
-  if (path.startsWith('http')) {
-    return path;
   }
   
   // Convert to absolute URL
