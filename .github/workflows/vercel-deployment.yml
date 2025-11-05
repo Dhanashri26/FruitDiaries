@@ -10,12 +10,32 @@ jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Clear Vercel Cache Before Build
+        run: |
+          # Try CLI cache purge command
+          vercel cache purge --type=cdn --yes --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null || \
+          # Fallback: Use Vercel API to purge cache
+          curl -X POST "https://api.vercel.com/v1/cache/purge" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"projectId\":\"${{ secrets.VERCEL_PROJECT_ID }}\"}" || \
+          echo "Cache purge skipped (may not be available in this Vercel plan)"
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Clear Vercel Cache After Deployment
+        run: |
+          # Try CLI cache purge command
+          vercel cache purge --type=cdn --yes --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null || \
+          # Fallback: Use Vercel API to purge cache
+          curl -X POST "https://api.vercel.com/v1/cache/purge" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"projectId\":\"${{ secrets.VERCEL_PROJECT_ID }}\"}" || \
+          echo "Cache purge skipped (may not be available in this Vercel plan)"
