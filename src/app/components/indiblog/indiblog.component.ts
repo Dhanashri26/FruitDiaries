@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BlogService } from '../../blog.service';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom, tap, shareReplay } from 'rxjs';
 import { Blog } from '../../models/Blog.model';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SeoService } from '../../seo.service';
+import { PLATFORM_ID, Inject } from '@angular/core';
 
 @Component({
   selector: 'app-indiblog',
@@ -20,31 +21,51 @@ export class IndiblogComponent {
   constructor(
     private route: ActivatedRoute,
     private blogService: BlogService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     const blogId = this.route.snapshot.paramMap.get('id')!;
-    this.blog$ = this.blogService.getBlogById(blogId);
-    this.blog$.subscribe(blog => {
-      if (blog) {
-        this.seoService.updateMetaTags({
-          title: blog.title,
-          description: blog.description,
-          image: blog.img,
-          url: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`,
-          type: 'article',
-          canonical: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`
-        });
-      }
-    });
+    
+    // Fetch blog and set meta tags - this ensures meta tags are set during SSR
+    // Use shareReplay to share the observable between the await and template subscription
+    this.blog$ = this.blogService.getBlogById(blogId).pipe(
+      tap(blog => {
+        if (blog) {
+          // Ensure image URL is absolute
+          const imageUrl = blog.img.startsWith('http') 
+            ? blog.img 
+            : `https://natures-basket-mocha.vercel.app${blog.img.startsWith('/') ? '' : '/'}${blog.img}`;
+          
+          this.seoService.updateMetaTags({
+            title: blog.title,
+            description: blog.description,
+            image: imageUrl,
+            url: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`,
+            type: 'article',
+            canonical: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`
+          });
+        }
+      }),
+      shareReplay(1) // Share the result so both await and template subscription get the same value
+    );
+    
+    // Wait for the first value during SSR to ensure meta tags are set before rendering
+    try {
+      await firstValueFrom(this.blog$);
+    } catch (error) {
+      console.error('Error loading blog:', error);
+    }
   }
 
   handleCopy() {
-    navigator.clipboard.writeText(window.location.href);
-    this.copyText = 'Copied!';
-    setTimeout(() => {
-      this.copyText = 'Share';
-    }, 1000);
+    if (isPlatformBrowser(this.platformId)) {
+      navigator.clipboard.writeText(window.location.href);
+      this.copyText = 'Copied!';
+      setTimeout(() => {
+        this.copyText = 'Share';
+      }, 1000);
+    }
   }
 }

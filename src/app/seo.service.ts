@@ -76,10 +76,7 @@ export class SeoService {
   }
 
   private setCanonicalLink(href: string): void {
-    // Only execute in browser environment
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
+    // Works on both server and browser
     let linkEl = this.document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!linkEl) {
       linkEl = this.document.createElement('link');
