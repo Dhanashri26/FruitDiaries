@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Blog } from '../../models/Blog.model';
+import { BlogService } from '../../blog.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SeoService } from '../../seo.service';
 import { PLATFORM_ID, Inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, tap, catchError } from 'rxjs';
+import { APP_CONFIG, getAbsoluteImageUrl } from '../../config/app.config';
 
 @Component({
   selector: 'app-indiblog',
@@ -20,44 +22,56 @@ export class IndiblogComponent {
   constructor(
     private route: ActivatedRoute,
     private seoService: SeoService,
+    private blogService: BlogService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
     // Get blog data from resolver (ensures SSR waits for data)
-    const blog = this.route.snapshot.data['blog'] as Blog;
+    let blog = this.route.snapshot.data['blog'] as Blog | undefined;
+    const blogId = this.route.snapshot.paramMap.get('id')!;
     
     if (blog) {
-      // Fix image URL: remove /public prefix if present, ensure it's absolute
-      let imagePath = blog.img;
-      // Remove /public prefix if present (assets are served from root in production)
-      if (imagePath.startsWith('/public/')) {
-        imagePath = imagePath.replace('/public', '');
-      }
-      // Ensure it starts with /
-      if (!imagePath.startsWith('/')) {
-        imagePath = '/' + imagePath;
-      }
-      // Convert to absolute URL
-      const imageUrl = imagePath.startsWith('http') 
-        ? imagePath 
-        : `https://natures-basket-mocha.vercel.app${imagePath}`;
-      
-      console.log('Setting meta tags for blog:', blog.title, 'Image:', imageUrl);
-      
-      // Set meta tags immediately with resolved data (works during SSR)
-      this.seoService.updateMetaTags({
-        title: blog.title,
-        description: blog.description,
-        image: imageUrl,
-        url: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`,
-        type: 'article',
-        canonical: `https://natures-basket-mocha.vercel.app/blog/${blog.id}`
-      });
-      
-      // Set blog$ observable for template
+      // Use resolved data
+      this.setMetaTags(blog);
       this.blog$ = of(blog);
+    } else {
+      // Fallback: fetch data if resolver didn't provide it (shouldn't happen, but just in case)
+      console.warn('Blog data not found in resolver, fetching directly...');
+      this.blog$ = this.blogService.getBlogById(blogId).pipe(
+        tap(blogData => {
+          if (blogData) {
+            this.setMetaTags(blogData);
+          }
+        }),
+        catchError(error => {
+          console.error('Error loading blog:', error);
+          return of(null as any);
+        })
+      );
     }
+  }
+
+  private setMetaTags(blog: Blog) {
+    // Use helper function to convert image path to absolute URL
+    const imageUrl = getAbsoluteImageUrl(blog.img);
+    const blogUrl = `${APP_CONFIG.BASE_URL}/blog/${blog.id}`;
+    
+    console.log(`[Blog ${blog.id}] Setting meta tags:`, {
+      title: blog.title,
+      description: blog.description.substring(0, 50) + '...',
+      image: imageUrl
+    });
+    
+    // Set meta tags immediately (works during SSR)
+    this.seoService.updateMetaTags({
+      title: blog.title,
+      description: blog.description,
+      image: imageUrl,
+      url: blogUrl,
+      type: 'article',
+      canonical: blogUrl
+    });
   }
 
   handleCopy() {

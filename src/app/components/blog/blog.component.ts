@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SeoService } from '../../seo.service';
+import { APP_CONFIG, getAbsoluteImageUrl } from '../../config/app.config';
 
 @Component({
   selector: 'app-blog',
@@ -22,29 +23,35 @@ export class BlogComponent {
   ) {}
 
   ngOnInit() {
-      const jsonLdData = {
-        "@context" : "https://schema.org",
-        "@type" : "Blog",
-        "headline" : "Nature's Basket | Fruits Shop",
-        "author" : {
-          "@type" : "Person",
-          "name" : "Dhanashri Lambade"
-        },
-        "datePublished" : "2025-10-30",
-        "image" : "/public/assets/photo1.1.jpg",
-        "description" : "Buy fresh Fruits using the website Nature's Basket. We deliver fresh fruits at your doorstep."
-      };
-      this.seoService.insertJSsonLd(jsonLdData);
+    // Use configuration constants for JSON-LD data
+    const jsonLdImage = getAbsoluteImageUrl(APP_CONFIG.DEFAULT_BLOG_IMAGE);
+    
+    const jsonLdData = {
+      "@context" : "https://schema.org",
+      "@type" : "Blog",
+      "headline" : "Nature's Basket | Fruits Shop",
+      "author" : {
+        "@type" : "Person",
+        "name" : APP_CONFIG.AUTHOR_NAME
+      },
+      "datePublished" : APP_CONFIG.AUTHOR_DATE_PUBLISHED,
+      "image" : jsonLdImage,
+      "description" : "Buy fresh Fruits using the website Nature's Basket. We deliver fresh fruits at your doorstep."
+    };
+    this.seoService.insertJSsonLd(jsonLdData);
 
-    // Generic SEO for the homepage or blog list
+    // Generic SEO for the homepage or blog list - using configuration constants
+    const blogUrl = `${APP_CONFIG.BASE_URL}/blog`;
+    
     this.seoService.updateMetaTags({
-      title: 'Buy fresh fruits online at Fruit Diaries.',
-      description: 'Buy fresh fruits online at affordable prices. Healthy eating starts here with amazing blog stories!',
-      image: 'https://images.unsplash.com/photo-1471500466955-85aecf33f71f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      url: 'https://natures-basket-mocha.vercel.app/blog',
+      title: `Buy fresh fruits online at ${APP_CONFIG.SITE_NAME}.`,
+      description: APP_CONFIG.SITE_DESCRIPTION,
+      image: APP_CONFIG.DEFAULT_SEO_IMAGE,
+      url: blogUrl,
       type: 'website',
-      canonical: 'https://natures-basket-mocha.vercel.app/blog'
+      canonical: blogUrl
     });
+    
     this.blogs$ = this.blogService.getAllBlogs();
   }
 
