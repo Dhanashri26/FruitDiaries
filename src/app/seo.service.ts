@@ -51,24 +51,38 @@ export class SeoService {
     // Set page title
     this.titleService.setTitle(title);
 
-    // Basic meta tags - use updateTag which will add if not exists or update if exists
-    this.meta.updateTag({ name: 'title', content: title });
-    this.meta.updateTag({ name: 'description', content: description });
+    // Remove existing meta tags first to ensure clean update during SSR
+    // This ensures default tags from server template are replaced
+    this.meta.removeTag('name="title"');
+    this.meta.removeTag('name="description"');
+    this.meta.removeTag('property="og:title"');
+    this.meta.removeTag('property="og:description"');
+    this.meta.removeTag('property="og:image"');
+    this.meta.removeTag('property="og:url"');
+    this.meta.removeTag('property="og:type"');
+    this.meta.removeTag('property="og:site_name"');
+    this.meta.removeTag('name="twitter:card"');
+    this.meta.removeTag('name="twitter:title"');
+    this.meta.removeTag('name="twitter:description"');
+    this.meta.removeTag('name="twitter:image"');
+
+    // Add new meta tags (works on both server and browser)
+    this.meta.addTag({ name: 'title', content: title });
+    this.meta.addTag({ name: 'description', content: description });
 
     // Open Graph meta tags (Facebook, LinkedIn, etc.)
-    // Use updateTag which works on both server and browser
-    this.meta.updateTag({ property: 'og:title', content: title });
-    this.meta.updateTag({ property: 'og:description', content: description });
-    this.meta.updateTag({ property: 'og:image', content: image });
-    this.meta.updateTag({ property: 'og:url', content: url });
-    this.meta.updateTag({ property: 'og:type', content: type });
-    this.meta.updateTag({ property: 'og:site_name', content: siteName });
+    this.meta.addTag({ property: 'og:title', content: title });
+    this.meta.addTag({ property: 'og:description', content: description });
+    this.meta.addTag({ property: 'og:image', content: image });
+    this.meta.addTag({ property: 'og:url', content: url });
+    this.meta.addTag({ property: 'og:type', content: type });
+    this.meta.addTag({ property: 'og:site_name', content: siteName });
     
     // Twitter Cards
-    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.meta.updateTag({ name: 'twitter:title', content: title });
-    this.meta.updateTag({ name: 'twitter:description', content: description });
-    this.meta.updateTag({ name: 'twitter:image', content: image });
+    this.meta.addTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.addTag({ name: 'twitter:title', content: title });
+    this.meta.addTag({ name: 'twitter:description', content: description });
+    this.meta.addTag({ name: 'twitter:image', content: image });
 
     // Canonical link
     if (canonical || url) {

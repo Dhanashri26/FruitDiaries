@@ -12,13 +12,21 @@ export const blogResolver: ResolveFn<Blog> = (route, state) => {
   
   // Return a promise that resolves with the blog data
   // This ensures SSR waits for the data before rendering
-  return firstValueFrom(blogService.getBlogById(blogId)).then(blog => {
-    console.log(`[Resolver] Resolved blog:`, {
-      id: blog.id,
-      title: blog.title,
-      description: blog.description.substring(0, 50) + '...'
+  return firstValueFrom(blogService.getBlogById(blogId))
+    .then(blog => {
+      if (!blog) {
+        throw new Error(`Blog with ID ${blogId} not found`);
+      }
+      console.log(`[Resolver] Resolved blog:`, {
+        id: blog.id,
+        title: blog.title,
+        description: blog.description.substring(0, 50) + '...'
+      });
+      return blog;
+    })
+    .catch(error => {
+      console.error(`[Resolver] Error fetching blog ${blogId}:`, error);
+      throw error; // Re-throw to prevent route from loading with invalid data
     });
-    return blog;
-  });
 };
 
