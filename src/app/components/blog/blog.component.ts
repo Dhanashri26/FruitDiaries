@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { BlogService } from '../../blog.service';
 import { Blog } from '../../models/Blog.model';
-import { RouterLink } from '@angular/router';
-import { Observable } from 'rxjs';
+import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Observable, of, tap, catchError } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SeoService } from '../../seo.service';
 import { APP_CONFIG, getAbsoluteImageUrl } from '../../config/app.config';
@@ -18,29 +18,80 @@ export class BlogComponent {
   blogs$?: Observable<Blog[]>;
 
   constructor(
+    private route: ActivatedRoute,
     private blogService: BlogService,
     private seoService: SeoService
   ) {}
 
   ngOnInit() {
-    // Use configuration constants for JSON-LD data
-    const jsonLdImage = getAbsoluteImageUrl(APP_CONFIG.DEFAULT_BLOG_IMAGE);
+    // Get blogs from resolver (ensures SSR waits for data)
+    const blogs = this.route.snapshot.data['blogs'] as Blog[] | undefined;
     
-    const jsonLdData = {
-      "@context" : "https://schema.org",
-      "@type" : "Blog",
-      "headline" : "Nature's Basket | Fruits Shop",
-      "author" : {
-        "@type" : "Person",
-        "name" : APP_CONFIG.AUTHOR_NAME
-      },
-      "datePublished" : APP_CONFIG.AUTHOR_DATE_PUBLISHED,
-      "image" : jsonLdImage,
-      "description" : "Buy fresh Fruits using the website Nature's Basket. We deliver fresh fruits at your doorstep."
-    };
-    this.seoService.insertJSsonLd(jsonLdData);
+    if (blogs && blogs.length > 0) {
+      // Use resolved data - set meta tags immediately (works during SSR)
+      const featuredBlog = blogs[0];
+      const featuredImage = getAbsoluteImageUrl(featuredBlog.img);
+      const blogUrl = `${APP_CONFIG.BASE_URL}/blog`;
+      
+      // Dynamic meta tags based on first blog (works during SSR)
+      this.seoService.updateMetaTags({
+        title: `${featuredBlog.title} - ${APP_CONFIG.SITE_NAME}`,
+        description: featuredBlog.description,
+        image: featuredImage,
+        url: blogUrl,
+        type: 'website',
+        canonical: blogUrl
+      });
+      
+      // JSON-LD data with dynamic content
+      const jsonLdData = {
+        "@context" : "https://schema.org",
+        "@type" : "Blog",
+        "headline" : featuredBlog.title,
+        "author" : {
+          "@type" : "Person",
+          "name" : APP_CONFIG.AUTHOR_NAME
+        },
+        "datePublished" : APP_CONFIG.AUTHOR_DATE_PUBLISHED,
+        "image" : featuredImage,
+        "description" : featuredBlog.description
+      };
+      this.seoService.insertJSsonLd(jsonLdData);
+      
+      // Set blogs$ observable for template
+      this.blogs$ = of(blogs);
+    } else {
+      // Fallback: fetch data if resolver didn't provide it
+      console.warn('Blogs data not found in resolver, fetching directly...');
+      this.blogs$ = this.blogService.getAllBlogs().pipe(
+        tap(blogsData => {
+          if (blogsData && blogsData.length > 0) {
+            const featuredBlog = blogsData[0];
+            const featuredImage = getAbsoluteImageUrl(featuredBlog.img);
+            const blogUrl = `${APP_CONFIG.BASE_URL}/blog`;
+            
+            this.seoService.updateMetaTags({
+              title: `${featuredBlog.title} - ${APP_CONFIG.SITE_NAME}`,
+              description: featuredBlog.description,
+              image: featuredImage,
+              url: blogUrl,
+              type: 'website',
+              canonical: blogUrl
+            });
+          } else {
+            this.setDefaultMetaTags();
+          }
+        }),
+        catchError(error => {
+          console.error('Error loading blogs:', error);
+          this.setDefaultMetaTags();
+          return of([]);
+        })
+      );
+    }
+  }
 
-    // Generic SEO for the homepage or blog list - using configuration constants
+  private setDefaultMetaTags() {
     const blogUrl = `${APP_CONFIG.BASE_URL}/blog`;
     
     this.seoService.updateMetaTags({
@@ -51,8 +102,6 @@ export class BlogComponent {
       type: 'website',
       canonical: blogUrl
     });
-    
-    this.blogs$ = this.blogService.getAllBlogs();
   }
 
   log(title: string) {
