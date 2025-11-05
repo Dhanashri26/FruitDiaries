@@ -23,16 +23,16 @@ export function app(): express.Express {
 
   // Example Express Rest API endpoints
   // server.get('/api/**', (req, res) => { });
-  // Serve static files from /browser
-  
-  server.get('**', express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: 'index.html',
-  }));
 
-  // All regular routes use the Angular engine
+  // IMPORTANT: Angular engine must come BEFORE static file serving
+  // This ensures SSR runs for all routes, not static files
   server.get('**', (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
+
+    // Skip SSR for static assets (js, css, images, etc.)
+    if (originalUrl.match(/\.(js|css|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      return next();
+    }
 
     commonEngine
       .render({
@@ -45,6 +45,12 @@ export function app(): express.Express {
       .then((html) => res.send(html))
       .catch((err) => next(err));
   });
+
+  // Serve static files from /browser (fallback for assets)
+  server.use(express.static(browserDistFolder, {
+    maxAge: '1y',
+    index: 'index.html',
+  }));
 
   return server;
 }

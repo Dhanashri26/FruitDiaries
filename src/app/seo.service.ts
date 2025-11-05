@@ -51,42 +51,47 @@ export class SeoService {
     // Set page title
     this.titleService.setTitle(title);
 
-    // Remove existing meta tags first to ensure clean update during SSR
-    // This ensures default tags from server template are replaced
-    this.meta.removeTag('name="title"');
-    this.meta.removeTag('name="description"');
-    this.meta.removeTag('property="og:title"');
-    this.meta.removeTag('property="og:description"');
-    this.meta.removeTag('property="og:image"');
-    this.meta.removeTag('property="og:url"');
-    this.meta.removeTag('property="og:type"');
-    this.meta.removeTag('property="og:site_name"');
-    this.meta.removeTag('name="twitter:card"');
-    this.meta.removeTag('name="twitter:title"');
-    this.meta.removeTag('name="twitter:description"');
-    this.meta.removeTag('name="twitter:image"');
-
-    // Add new meta tags (works on both server and browser)
-    this.meta.addTag({ name: 'title', content: title });
-    this.meta.addTag({ name: 'description', content: description });
-
-    // Open Graph meta tags (Facebook, LinkedIn, etc.)
-    this.meta.addTag({ property: 'og:title', content: title });
-    this.meta.addTag({ property: 'og:description', content: description });
-    this.meta.addTag({ property: 'og:image', content: image });
-    this.meta.addTag({ property: 'og:url', content: url });
-    this.meta.addTag({ property: 'og:type', content: type });
-    this.meta.addTag({ property: 'og:site_name', content: siteName });
+    // Directly manipulate DOM during SSR to ensure tags are replaced
+    // This approach works more reliably than removeTag/addTag
+    this.setOrUpdateMetaTag('name', 'title', title);
+    this.setOrUpdateMetaTag('name', 'description', description);
+    
+    // Open Graph meta tags
+    this.setOrUpdateMetaTag('property', 'og:title', title);
+    this.setOrUpdateMetaTag('property', 'og:description', description);
+    this.setOrUpdateMetaTag('property', 'og:image', image);
+    this.setOrUpdateMetaTag('property', 'og:url', url);
+    this.setOrUpdateMetaTag('property', 'og:type', type);
+    this.setOrUpdateMetaTag('property', 'og:site_name', siteName);
     
     // Twitter Cards
-    this.meta.addTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.meta.addTag({ name: 'twitter:title', content: title });
-    this.meta.addTag({ name: 'twitter:description', content: description });
-    this.meta.addTag({ name: 'twitter:image', content: image });
+    this.setOrUpdateMetaTag('name', 'twitter:card', 'summary_large_image');
+    this.setOrUpdateMetaTag('name', 'twitter:title', title);
+    this.setOrUpdateMetaTag('name', 'twitter:description', description);
+    this.setOrUpdateMetaTag('name', 'twitter:image', image);
 
     // Canonical link
     if (canonical || url) {
       this.setCanonicalLink(canonical || url);
+    }
+  }
+
+  private setOrUpdateMetaTag(attr: 'name' | 'property', selector: string, content: string): void {
+    // Find existing meta tag
+    let metaTag = this.document.querySelector(`meta[${attr}="${selector}"]`) as HTMLMetaElement;
+    
+    if (metaTag) {
+      // Update existing tag
+      const oldContent = metaTag.getAttribute('content');
+      metaTag.setAttribute('content', content);
+      console.log(`[SSR] Updated meta tag ${attr}="${selector}": "${oldContent}" -> "${content}"`);
+    } else {
+      // Create new tag if it doesn't exist
+      metaTag = this.document.createElement('meta');
+      metaTag.setAttribute(attr, selector);
+      metaTag.setAttribute('content', content);
+      this.document.head.appendChild(metaTag);
+      console.log(`[SSR] Added new meta tag ${attr}="${selector}": "${content}"`);
     }
   }
 
