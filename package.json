@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "build:ssr": "ng build",
+    "build": "ng build --configuration production",
+    "build:ssr": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "apiserver": "json-server fakeApi/db.json --routes fakeApi/routes.json --port 5000",
