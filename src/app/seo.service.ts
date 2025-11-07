@@ -51,23 +51,24 @@ export class SeoService {
     // Set page title
     this.titleService.setTitle(title);
 
-    // Basic meta tags
-    this.meta.updateTag({ name: 'title', content: title });
-    this.meta.updateTag({ name: 'description', content: description });
-
-    // Open Graph meta tags (Facebook, LinkedIn, etc.)
-    this.meta.updateTag({ property: 'og:title', content: title });
-    this.meta.updateTag({ property: 'og:description', content: description });
-    this.meta.updateTag({ property: 'og:image', content: image });
-    this.meta.updateTag({ property: 'og:url', content: url });
-    this.meta.updateTag({ property: 'og:type', content: type });
-    this.meta.updateTag({ property: 'og:site_name', content: siteName });
+    // Directly manipulate DOM during SSR to ensure tags are replaced
+    // This approach works more reliably than removeTag/addTag
+    this.setOrUpdateMetaTag('name', 'title', title);
+    this.setOrUpdateMetaTag('name', 'description', description);
+    
+    // Open Graph meta tags
+    this.setOrUpdateMetaTag('property', 'og:title', title);
+    this.setOrUpdateMetaTag('property', 'og:description', description);
+    this.setOrUpdateMetaTag('property', 'og:image', image);
+    this.setOrUpdateMetaTag('property', 'og:url', url);
+    this.setOrUpdateMetaTag('property', 'og:type', type);
+    this.setOrUpdateMetaTag('property', 'og:site_name', siteName);
     
     // Twitter Cards
-    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.meta.updateTag({ name: 'twitter:title', content: title });
-    this.meta.updateTag({ name: 'twitter:description', content: description });
-    this.meta.updateTag({ name: 'twitter:image', content: image });
+    this.setOrUpdateMetaTag('name', 'twitter:card', 'summary_large_image');
+    this.setOrUpdateMetaTag('name', 'twitter:title', title);
+    this.setOrUpdateMetaTag('name', 'twitter:description', description);
+    this.setOrUpdateMetaTag('name', 'twitter:image', image);
 
     // Canonical link
     if (canonical || url) {
@@ -75,11 +76,27 @@ export class SeoService {
     }
   }
 
-  private setCanonicalLink(href: string): void {
-    // Only execute in browser environment
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
+  private setOrUpdateMetaTag(attr: 'name' | 'property', selector: string, content: string): void {
+    // Find existing meta tag
+    let metaTag = this.document.querySelector(`meta[${attr}="${selector}"]`) as HTMLMetaElement;
+    
+    if (metaTag) {
+      // Update existing tag
+      const oldContent = metaTag.getAttribute('content');
+      metaTag.setAttribute('content', content);
+      console.log(`[SSR] Updated meta tag ${attr}="${selector}": "${oldContent}" -> "${content}"`);
+    } else {
+      // Create new tag if it doesn't exist
+      metaTag = this.document.createElement('meta');
+      metaTag.setAttribute(attr, selector);
+      metaTag.setAttribute('content', content);
+      this.document.head.appendChild(metaTag);
+      console.log(`[SSR] Added new meta tag ${attr}="${selector}": "${content}"`);
     }
+  }
+
+  private setCanonicalLink(href: string): void {
+    // Works on both server and browser
     let linkEl = this.document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!linkEl) {
       linkEl = this.document.createElement('link');

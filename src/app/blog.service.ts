@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Blog } from './models/Blog.model';
 import { Observable } from 'rxjs';
 import { Meta } from '@angular/platform-browser';
+import { APP_CONFIG } from './config/app.config';
 
 @Injectable({
   providedIn: 'root'
@@ -16,12 +17,13 @@ export class BlogService {
   constructor(private http:HttpClient, private meta: Meta) { }
 
   getAllBlogs() {
-    return this.http.get<Blog[]>("https://my-json-server.typicode.com/Dhanashri26/fake-APIs/blogs")
-    //  return this.http.get<Blog[]>("http://localhost:5000/api/blogs")
+    // Use API_URL from config instead of hardcoded URL
+    return this.http.get<Blog[]>(`${APP_CONFIG.API_URL}/blogs`)
   }
+  
   getBlogById(id:string) {
-    return this.http.get<Blog>(`https://my-json-server.typicode.com/Dhanashri26/fake-APIs/blogs/${id}`)
-    //  return this.http.get<Blog>(`http://localhost:5000/api/blogs/${id}`)
+    // Use API_URL from config instead of hardcoded URL
+    return this.http.get<Blog>(`${APP_CONFIG.API_URL}/blogs/${id}`)
   }
 
   // getCard1Detail(){
