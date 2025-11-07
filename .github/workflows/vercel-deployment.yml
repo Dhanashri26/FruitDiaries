@@ -1,74 +1,41 @@
 name: Vercel Production Deployment
+
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
 on:
   push:
     branches:
       - development
+
 jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+
       - name: Install Dependencies
         run: npm ci
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
+
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Clear Vercel Cache Before Build
-        run: |
-          # Try CLI cache purge command
-          vercel cache purge --type=cdn --yes --token=${{ secrets.VERCEL_TOKEN }} 2>/dev/null || \
-          # Fallback: Use Vercel API to purge cache
-          curl -X POST "https://api.vercel.com/v1/cache/purge" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"projectId\":\"${{ secrets.VERCEL_PROJECT_ID }}\"}" || \
-          echo "Cache purge skipped (may not be available in this Vercel plan)"
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Remove Pre-rendered Files After Build
-        run: |
-          echo "Removing pre-rendered files to force SSR..."
-          # Remove all pre-rendered route directories
-          rm -rf dist/fruitdiaries/browser/blog dist/fruitdiaries/browser/*/index.html 2>/dev/null || true
-          find dist/fruitdiaries/browser -type d -name "blog" -exec rm -rf {} + 2>/dev/null || true
-          # Remove all index.html files except the root one
-          find dist/fruitdiaries/browser -name "index.html" ! -path "dist/fruitdiaries/browser/index.html" -delete 2>/dev/null || true
-          # Remove prerendered-routes.json
-          rm -f dist/fruitdiaries/prerendered-routes.json 2>/dev/null || true
-          # Also remove the root index.html if it's pre-rendered (we'll use SSR for everything)
-          # Actually, keep root index.html as it's needed for the app
-          echo "✓ Pre-rendered files removed - SSR will be used"
-          echo "Remaining HTML files:"
-          find dist/fruitdiaries/browser -name "*.html" -type f 2>/dev/null || echo "No HTML files found"
-      - name: Verify No Pre-rendered Files
-        run: |
-          if [ -f dist/fruitdiaries/prerendered-routes.json ]; then
-            echo "WARNING: Pre-rendered routes file still exists!"
-            cat dist/fruitdiaries/prerendered-routes.json
-            exit 1
-          else
-            echo "✓ No pre-rendered routes file found - SSR will be used"
-          fi
+
+      - name: Build Angular SSR Project
+        run: npm run build:ssr
+
+      - name: Prepare Vercel Output
+        run: node server-adapter.mjs
+
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Clear Vercel Cache After Deployment
-        run: |
-          echo "Clearing Vercel CDN cache after deployment..."
-          # Purge all cache types
-          vercel cache purge --type=cdn --yes --token=${{ secrets.VERCEL_TOKEN }} 2>&1 || echo "CDN cache purge failed or not available"
-          vercel cache purge --type=edge --yes --token=${{ secrets.VERCEL_TOKEN }} 2>&1 || echo "Edge cache purge failed or not available"
-          # Fallback: Use Vercel API to purge cache
-          curl -X POST "https://api.vercel.com/v1/cache/purge" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"projectId\":\"${{ secrets.VERCEL_PROJECT_ID }}\"}" 2>&1 || echo "API cache purge failed"
-          echo "Cache purge completed"
