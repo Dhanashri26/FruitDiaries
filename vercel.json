@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/fruitdiaries/browser",
+  "outputDirectory": "dist/browser",
   "framework": null,
   "cleanUrls": false,
   "trailingSlash": false,
