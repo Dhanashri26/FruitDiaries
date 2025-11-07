@@ -5,6 +5,7 @@
     { "src": "dist/fruitdiaries/browser/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "server.ts" }
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/server.ts" }
   ]
 }

@@ -1,51 +1,46 @@
 import 'zone.js/node';
 import express from 'express';
-import { join } from 'path';
-import { existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr';
+import bootstrap from './src/main.server';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const distFolder = resolve(__dirname, './dist/fruitdiaries/browser');
+const indexHtml = join(distFolder, 'index.html');
 
-const DIST_FOLDER = join(__dirname, 'dist/fruitdiaries/browser');
-const SERVER_BUNDLE = join(__dirname, 'dist/fruitdiaries/server/main.server.mjs');
+export function app(): express.Express {
+  const server = express();
+  const commonEngine = new CommonEngine();
 
-const app = express();
+  server.get('/api/ping', (req, res) => {
+    res.json({ message: 'Angular SSR working ✅' });
+  });
 
-let commonEngine: CommonEngine | null = null;
-
-app.set('view engine', 'html');
-app.set('views', DIST_FOLDER);
-
-app.get('*.*', express.static(DIST_FOLDER, { maxAge: '1y' }));
-
-app.get('*', async (req, res, next) => {
-  try {
-    if (!commonEngine) {
-      const { AppServerModule } = await import(SERVER_BUNDLE);
-      commonEngine = new CommonEngine();
-      await commonEngine.render({
-        bootstrap: AppServerModule,
-        documentFilePath: join(DIST_FOLDER, 'index.html'),
-        url: req.originalUrl,
-        providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }],
-      }).then(html => res.status(200).send(html));
-    } else {
+  server.get('*', async (req, res, next) => {
+    try {
       const html = await commonEngine.render({
-        bootstrap: (await import(SERVER_BUNDLE)).AppServerModule,
-        documentFilePath: join(DIST_FOLDER, 'index.html'),
+        bootstrap,
+        documentFilePath: indexHtml,
         url: req.originalUrl,
         providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }],
       });
       res.status(200).send(html);
+    } catch (err) {
+      next(err);
     }
-  } catch (err) {
-    console.error(err);
-    next(err);
-  }
-});
+  });
 
-export default app;
+  return server;
+}
+
+function run(): void {
+  const port = process.env['PORT'] || 4000;
+  const server = app();
+  server.listen(port, () => {
+    console.log(`✅ Angular SSR running on http://localhost:${port}`);
+  });
+}
+
+run();
