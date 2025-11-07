@@ -37,13 +37,18 @@ jobs:
       - name: Remove Pre-rendered Files After Build
         run: |
           echo "Removing pre-rendered files to force SSR..."
-          rm -rf dist/fruitdiaries/browser/blog dist/fruitdiaries/browser/*/index.html dist/fruitdiaries/prerendered-routes.json 2>/dev/null || true
+          # Remove all pre-rendered route directories
+          rm -rf dist/fruitdiaries/browser/blog dist/fruitdiaries/browser/*/index.html 2>/dev/null || true
           find dist/fruitdiaries/browser -type d -name "blog" -exec rm -rf {} + 2>/dev/null || true
+          # Remove all index.html files except the root one
           find dist/fruitdiaries/browser -name "index.html" ! -path "dist/fruitdiaries/browser/index.html" -delete 2>/dev/null || true
-          if [ -f dist/fruitdiaries/prerendered-routes.json ]; then
-            rm -f dist/fruitdiaries/prerendered-routes.json
-          fi
+          # Remove prerendered-routes.json
+          rm -f dist/fruitdiaries/prerendered-routes.json 2>/dev/null || true
+          # Also remove the root index.html if it's pre-rendered (we'll use SSR for everything)
+          # Actually, keep root index.html as it's needed for the app
           echo "✓ Pre-rendered files removed - SSR will be used"
+          echo "Remaining HTML files:"
+          find dist/fruitdiaries/browser -name "*.html" -type f 2>/dev/null || echo "No HTML files found"
       - name: Verify No Pre-rendered Files
         run: |
           if [ -f dist/fruitdiaries/prerendered-routes.json ]; then
