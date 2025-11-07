@@ -1,46 +1,34 @@
-import 'zone.js/node';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './src/app/app.component';
+import { provideServerRendering } from '@angular/platform-server';
+import { renderApplication } from '@angular/platform-server';
 import express from 'express';
-import { join, resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { APP_BASE_HREF } from '@angular/common';
-import { CommonEngine } from '@angular/ssr';
-import bootstrap from './src/main.server';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const distFolder = resolve(__dirname, './dist/fruitdiaries/browser');
-const indexHtml = join(distFolder, 'index.html');
+const app = express();
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const distFolder = join(__dirname, 'dist/fruitdiaries/browser');
+const serverDistFolder = join(__dirname, 'dist/fruitdiaries/server');
 
-export function app(): express.Express {
-  const server = express();
-  const commonEngine = new CommonEngine();
+app.use(express.static(distFolder, {
+  maxAge: '1y',
+  index: false
+}));
 
-  server.get('/api/ping', (req, res) => {
-    res.json({ message: 'Angular SSR working ✅' });
+app.get('*', async (req, res) => {
+  const { renderModule } = await import('@angular/platform-server');
+  const { AppServerModule } = await import(`${serverDistFolder}/main.js`);
+
+  const html = await renderModule(AppServerModule, {
+    url: req.originalUrl,
+    document: '<app-root></app-root>'
   });
 
-  server.get('*', async (req, res, next) => {
-    try {
-      const html = await commonEngine.render({
-        bootstrap,
-        documentFilePath: indexHtml,
-        url: req.originalUrl,
-        providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }],
-      });
-      res.status(200).send(html);
-    } catch (err) {
-      next(err);
-    }
-  });
+  res.status(200).send(html);
+});
 
-  return server;
-}
-
-function run(): void {
-  const port = process.env['PORT'] || 4000;
-  const server = app();
-  server.listen(port, () => {
-    console.log(`✅ Angular SSR running on http://localhost:${port}`);
-  });
-}
-
-run();
+const port = process.env['PORT'] || 4000;
+app.listen(port, () => {
+  console.log(`Node Express server listening on http://localhost:${port}`);
+});

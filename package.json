@@ -5,8 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration production",
-    "build:ssr": "ng build --configuration production && ng run fruitdiaries:server",
-    "serve:ssr": "node dist/fruitdiaries/server/server.mjs"
+    "build:ssr": "ng build && ng run fruitdiaries:server",
+    "serve:ssr": "node dist/fruitdiaries/server/main.js"
   },
   "private": true,
   "dependencies": {
