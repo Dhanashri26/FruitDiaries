@@ -4,6 +4,14 @@
   "framework": null,
   "rewrites": [
     {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/(.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))",
+      "destination": "/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/ssr"
     }

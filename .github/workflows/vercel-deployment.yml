@@ -34,6 +34,25 @@ jobs:
           echo "Cache purge skipped (may not be available in this Vercel plan)"
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Remove Pre-rendered Files After Build
+        run: |
+          echo "Removing pre-rendered files to force SSR..."
+          rm -rf dist/fruitdiaries/browser/blog dist/fruitdiaries/browser/*/index.html dist/fruitdiaries/prerendered-routes.json 2>/dev/null || true
+          find dist/fruitdiaries/browser -type d -name "blog" -exec rm -rf {} + 2>/dev/null || true
+          find dist/fruitdiaries/browser -name "index.html" ! -path "dist/fruitdiaries/browser/index.html" -delete 2>/dev/null || true
+          if [ -f dist/fruitdiaries/prerendered-routes.json ]; then
+            rm -f dist/fruitdiaries/prerendered-routes.json
+          fi
+          echo "✓ Pre-rendered files removed - SSR will be used"
+      - name: Verify No Pre-rendered Files
+        run: |
+          if [ -f dist/fruitdiaries/prerendered-routes.json ]; then
+            echo "WARNING: Pre-rendered routes file still exists!"
+            cat dist/fruitdiaries/prerendered-routes.json
+            exit 1
+          else
+            echo "✓ No pre-rendered routes file found - SSR will be used"
+          fi
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
       - name: Clear Vercel Cache After Deployment
