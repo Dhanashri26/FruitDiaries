@@ -1,25 +1,19 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/browser",
-  "framework": null,
-  "cleanUrls": false,
-  "trailingSlash": false,
-  "rewrites": [
+  "version": 3,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/ssr"
+      "src": "server.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "dist/fruitdiaries/browser/**",
+      "use": "@vercel/static"
     }
   ],
-  "headers": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
+      "src": "/(.*)",
+      "dest": "server.ts"
     }
   ]
 }
-

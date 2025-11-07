@@ -6,11 +6,7 @@
     "start": "ng serve",
     "build": "ng build --configuration production",
     "build:ssr": "ng build --configuration production",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "apiserver": "json-server fakeApi/db.json --routes fakeApi/routes.json --port 5000",
-    "server": "npm run build:ssr && node dist/fruitdiaries/server/server.mjs",
-    "serve:ssr:fruitdiaries": "node dist/fruitdiaries/server/server.mjs"
+    "serve:ssr": "node dist/fruitdiaries/server/server.mjs"
   },
   "private": true,
   "dependencies": {
