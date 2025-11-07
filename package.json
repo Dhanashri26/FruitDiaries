@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --configuration production",
+    "build": "ng build",
     "build:ssr": "ng build && ng run fruitdiaries:server",
     "serve:ssr": "node dist/fruitdiaries/server/main.js"
   },
