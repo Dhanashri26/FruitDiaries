@@ -1,11 +1,26 @@
 {
   "buildCommand": "npm run build:ssr",
-  "outputDirectory": "dist/fruitdiaries/browser/browser",
+  "outputDirectory": "dist/fruitdiaries/browser",
   "framework": null,
   "rewrites": [
     {
+      "source": "/(.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))",
+      "destination": "/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/ssr.mjs"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }
