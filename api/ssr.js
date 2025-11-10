@@ -5,11 +5,13 @@ export default async function handler(req, res) {
   try {
     // Import the Express app from the built server
     // The path is relative to where Vercel runs the function
-    const serverModule = await import('../dist/fruitdiaries/server/server.mjs');
-    const app = serverModule.app || serverModule.default?.app || serverModule.default;
+    const serverModule = await import('../dist/fruitdiaries/server/main.js');
+    
+    // The built server exports the app function (from server.ts)
+    const app = serverModule.app || serverModule.default;
     
     if (!app) {
-      throw new Error('Could not find app export from server.mjs');
+      throw new Error('Could not find app export from server bundle');
     }
     
     // Create a new Express app instance for this request
@@ -31,4 +33,3 @@ export default async function handler(req, res) {
     res.status(500).send('SSR Server Error: ' + error.message);
   }
 }
-
