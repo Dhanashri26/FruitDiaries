@@ -4,13 +4,13 @@ import { CommonEngine } from '@angular/ssr';
 import express from 'express';
 import { existsSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import bootstrap from './src/main.server';
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
   const server = express();
-  const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+  // Use __dirname for CommonJS compatibility
+  const serverDistFolder = __dirname;
   const browserDistFolder = resolve(serverDistFolder, '../browser');
   const indexHtml = existsSync(join(serverDistFolder, 'index.server.html'))
     ? join(serverDistFolder, 'index.server.html')

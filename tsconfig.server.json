@@ -3,6 +3,8 @@
   "compilerOptions": {
     "outDir": "./out-tsc/app-server",
     "target": "es2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "types": ["node"]
   },
   "files": ["server.ts", "src/main.server.ts"]

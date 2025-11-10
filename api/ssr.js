@@ -1,14 +1,20 @@
 // Vercel serverless function for Angular SSR
 // This file is used by Vercel to run SSR for all routes
+// Using createRequire to import CommonJS module from ES module
+
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 export default async function handler(req, res) {
   try {
-    // Import the Express app from the built server
+    // Import the Express app from the built server (CommonJS)
     // The path is relative to where Vercel runs the function
-    const serverModule = await import('../dist/fruitdiaries/server/main.js');
+    const serverModule = require('../dist/fruitdiaries/server/main.js');
     
     // The built server exports the app function (from server.ts)
-    const app = serverModule.app || serverModule.default;
+    // Handle CommonJS exports
+    const app = serverModule.app || serverModule.default || serverModule;
     
     if (!app) {
       throw new Error('Could not find app export from server bundle');
