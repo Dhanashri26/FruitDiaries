@@ -3,14 +3,19 @@
 // Using createRequire to import CommonJS module from ES module
 
 import { createRequire } from 'module';
+import { join } from 'path';
+import { pathToFileURL } from 'url';
 
-const require = createRequire(import.meta.url);
+// Use process.cwd() to construct file URL for createRequire
+// Vercel serverless functions run from /var/task, so we use process.cwd()
+const fileUrl = pathToFileURL(join(process.cwd(), 'api/ssr.mjs')).href;
+const require = createRequire(fileUrl);
 
 export default async function handler(req, res) {
   try {
     // Import the Express app from the built server (CommonJS)
     // The path is relative to where Vercel runs the function
-    const serverModule = require('../dist/fruitdiaries/server/main.js');
+    const serverModule = require(join(process.cwd(), 'dist/fruitdiaries/server/main.js'));
     
     // The built server exports the app function (from server.ts)
     // Handle CommonJS exports
