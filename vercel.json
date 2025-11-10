@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build:ssr",
-  "outputDirectory": "dist/fruitdiaries/browser",
+  "outputDirectory": "dist/fruitdiaries/browser/browser",
   "framework": null,
   "rewrites": [
     {
